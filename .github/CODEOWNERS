@@ -1,6 +1,9 @@
 # Dependencias de Python
 
 /requirements.txt @jagobainda
+/apps/ @jagobainda
+/packages/ @jagobainda
+/tests/ @jagobainda
 
 # GitHub Actions
 

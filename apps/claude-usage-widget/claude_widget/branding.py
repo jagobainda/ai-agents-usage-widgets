@@ -1,14 +1,11 @@
-"""Tray + popup icon image generation (PIL)."""
+"""Claude branding rendered for the title bar and executable."""
 
 from __future__ import annotations
 
 import re
 
 import aggdraw
-from PIL import Image, ImageDraw, ImageFont
-
-from .api import Usage
-from .config import ICON_SIZE, status_color_rgb
+from PIL import Image
 
 
 # Claude brand colour (used for the in-app logo).
@@ -44,7 +41,7 @@ def _scale_path(path_d: str, scale: float) -> str:
     )
 
 
-def claude_logo(size: int = ICON_SIZE,
+def claude_logo(size: int = 64,
                 color: tuple[int, int, int] = CLAUDE_ORANGE) -> Image.Image:
     """Render the official Claude icon mark using aggdraw.
 
@@ -63,47 +60,3 @@ def claude_logo(size: int = ICON_SIZE,
     draw.symbol((0, 0), sym, None, brush)
     draw.flush()
     return img.resize((size, size), Image.LANCZOS)
-
-
-def _font(size: int) -> ImageFont.ImageFont:
-    for name in ("segoeuib.ttf", "arialbd.ttf", "seguisb.ttf", "arial.ttf"):
-        try:
-            return ImageFont.truetype(name, size)
-        except OSError:
-            continue
-    return ImageFont.load_default()
-
-
-def make_icon(text: str, color: tuple[int, int, int],
-              size: int = ICON_SIZE) -> Image.Image:
-    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
-    bbox = (0, 0, 0, 0)
-    font = _font(24)
-    for s in (int(size * 0.88), int(size * 0.75), int(size * 0.62),
-              int(size * 0.50), int(size * 0.38)):
-        font = _font(s)
-        bbox = d.textbbox((0, 0), text, font=font)
-        tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
-        if tw <= size - 2 and th <= size - 2:
-            break
-    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    x = (size - tw) / 2 - bbox[0]
-    y = (size - th) / 2 - bbox[1]
-    d.text((x, y), text, fill=color + (255,), font=font)
-    return img
-
-
-def usage_icon(usage: Usage, size: int = ICON_SIZE) -> Image.Image:
-    primary = usage.primary
-    pct = primary.utilization if primary is not None else 0.0
-    text = f"{int(round(pct * 100))}"
-    return make_icon(text, status_color_rgb(pct), size=size)
-
-
-def loading_icon(size: int = ICON_SIZE) -> Image.Image:
-    return make_icon("…", (122, 129, 140), size=size)
-
-
-def error_icon(size: int = ICON_SIZE) -> Image.Image:
-    return make_icon("!", (122, 129, 140), size=size)

@@ -11,7 +11,7 @@ updates:
         patterns:
           - "*"
 
-  # GitHub Actions (ready for when CI is added)
+  # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

@@ -1,101 +1,133 @@
 <div align="center">
 
-<img src="claude_widget/claude_icon.svg" alt="Claude" width="70" height="70">
+<img src="apps/claude-usage-widget/claude_widget/claude_icon.svg" alt="Claude" width="56" height="56">
+&nbsp;&nbsp;&nbsp;
+<img src="apps/codex-usage-widget/codex_widget/codex_icon.svg" alt="Codex" width="56" height="56">
+&nbsp;&nbsp;&nbsp;
+<img src="apps/opencode-usage-widget/opencode_widget/opencode_icon.svg" alt="OpenCode" width="56" height="56">
 
-# Claude Usage Widget
+# Windows Usage Widgets
 
-A small Windows system-tray widget that shows your current Claude Code usage (5-hour and 7-day windows) in real time.
+Independent Windows system tray widgets for monitoring **Claude Code**,
+**OpenAI Codex**, and **OpenCode Go** usage.
+
+Each widget displays the percentage used directly in its tray icon. Open it to
+view every available usage window, the time remaining until each reset, and
+when the data was last updated.
 
 <br>
 
-<img src="claude_widget/widget-screenrecord.gif" alt="Widget in the Windows system tray">
+<img src="assets/widgets-overview.gif" alt="Demo of the three usage widgets">
 
 </div>
 
----
+## Download and install
 
-## Requirements
+| Widget | Information displayed | Installer |
+| --- | --- | --- |
+| **Claude Usage Widget** | Claude Code usage windows | [Download version 1.0.5](https://cdn.jagoba.dev/downloads/usage-widgets/ClaudeUsageWidget-Setup-1.0.5.exe) |
+| **Codex Usage Widget** | Account limits exposed by Codex CLI | [Download version 1.0.5](https://cdn.jagoba.dev/downloads/usage-widgets/CodexUsageWidget-Setup-1.0.5.exe) |
+| **OpenCode Usage Widget** | OpenCode Go five-hour, weekly, and monthly windows | [Download version 1.0.5](https://cdn.jagoba.dev/downloads/usage-widgets/OpenCodeUsageWidget-Setup-1.0.5.exe) |
 
-- **Windows 10/11**
-- **[Claude Code CLI](https://docs.claude.com/en/docs/claude-code/overview)** installed and signed in (`claude login`). The widget reuses the OAuth credentials that the CLI stores at `~/.claude/.credentials.json`.
-- To run from source (developers): **Python 3.10+**.
+To install a widget:
 
----
+1. Download its installer.
+2. Run the `.exe` file and follow the setup wizard.
+3. Enable **Start with Windows** if you want the widget to remain readily
+   available.
+4. When setup finishes, a new icon will appear in the system tray.
 
-## Installation
+Each widget has its own process, installation directory, and startup setting.
+You can install and use all three at the same time.
 
-There are two ways to install it: use the pre-built `.exe` (recommended) or run it from source.
+## Requirements and account access
 
-### Option A — Installer / `.exe` (recommended)
+### Claude Usage Widget
 
-1. Download the latest version from the [installer](https://cdn.jagoba.dev/downloads/claude-usage-widget/ClaudeUsageWidget-Setup-1.0.4.exe).
-2. Run the installer (`ClaudeUsageWidget-Setup-x.y.z.exe`).
-3. The widget will appear in the system tray. Left-click opens the popup with the details, right-click shows the menu (refresh / quit).
-4. **(Highly recommended)** Pull the icon out of the tray overflow flyout (`^`) so it is always visible on the taskbar. Once the widget has run at least once, open **PowerShell** and run:
-
-    ```powershell
-    irm https://raw.githubusercontent.com/jagobainda/claude-usage-widget/main/scripts/promote-tray-icon.ps1 | iex
-    ```
-
-    The script tweaks the Windows registry (`HKCU\Control Panel\NotifyIconSettings`) to pin the icon and restarts Explorer to apply the change. You can review the full source at [`scripts/promote-tray-icon.ps1`](scripts/promote-tray-icon.ps1) before running it.
-
-> The executable is digitally signed. The first time you open it, Windows SmartScreen may take a few seconds to validate it.
-
-### Option B — From source (recommended for developers only)
+You need [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview)
+installed and signed in:
 
 ```powershell
-git clone https://github.com/jagobainda/claude-usage-widget.git
-cd claude-usage-widget
-
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-
-pip install -r requirements.txt
-python main.py
+claude login
 ```
 
----
+After signing in, open Claude Usage Widget from the Start menu. The widget uses
+the existing Claude Code session on your computer.
 
-## Build your own `.exe`
+### Codex Usage Widget
 
-The repository includes a PowerShell script that automates the build with PyInstaller:
+You need a recent version of
+[Codex CLI](https://developers.openai.com/codex/cli/) installed on Windows,
+available in `PATH`, and signed in:
 
 ```powershell
-.\scripts\build-release.ps1 -Version "1.0.0"
+codex login
+codex --version
 ```
 
-The resulting binary is dropped at `releases\ClaudeUsageWidget-1.0.0.exe`.
+The widget communicates with `codex app-server`, the official Codex protocol,
+and never accesses the credential file directly.
 
-If you have a code-signing certificate (e.g. Certum), you can sign it in the same step:
+### OpenCode Usage Widget
 
-```powershell
-.\scripts\build-release.ps1 -Version "1.0.0" -Sign -CertThumbprint "<sha1>"
+You need [OpenCode](https://opencode.ai/docs/) and an active **OpenCode Go**
+subscription. In OpenCode, run:
+
+```text
+/connect
 ```
 
----
+Select **OpenCode Go** and enter your API key. The widget reuses that credential
+in read-only mode; it does not copy or modify it.
 
-## Auto-start with Windows (optional)
-
-To have the widget start with your session:
-
-1. Press `Win + R`, type `shell:startup` and hit Enter.
-2. Create a shortcut to `ClaudeUsageWidget.exe` inside that folder.
-
----
-
-## Uninstall
-
-- If you used the **installer**: uninstall it from _Installed apps_ in Windows.
-- If you used the **portable `.exe`** or the **source code**: close the widget from the tray menu and delete the folder.
-
-Your Claude Code credentials are not touched during uninstall — they still live in `~/.claude/.credentials.json` and are managed by the official CLI.
-
----
-
-> [!WARNING]
+> [!NOTE]
 >
-> The widget queries the endpoint that the official Claude Code CLI uses internally to display usage. **It is a private, undocumented endpoint** — Anthropic may change it, restrict it, or remove it at any time without notice. If that happens, the widget will stop working until an update is released, and that update may take some time.
+> OpenCode Usage Widget only displays OpenCode Go limits. The available
+> endpoint does not include your Zen credit balance or usage from external
+> providers configured in OpenCode.
+
+## Usage
+
+- The number in the tray icon shows the percentage used in the primary window.
+- Open the icon to view every window and its reset time.
+- Select **Refresh now** to request an immediate update.
+- Use the tray menu to open the details or quit the widget.
+- If an update fails, the popup keeps the last valid data and displays the
+  reason for the error.
+
+The widgets only retrieve usage information. They do not create conversations
+or send prompts to any model.
+
+## Update or uninstall
+
+To update a widget, download the latest version and run the installer over the
+existing installation. Windows startup settings and credentials managed by
+each tool remain separate.
+
+To uninstall a widget, open **Windows Settings → Apps → Installed apps**, find
+its name, and select **Uninstall**. Removing a widget does not sign you out or
+delete credentials belonging to Claude Code, Codex, or OpenCode.
+
+## Troubleshooting
+
+- **The icon does not appear:** check the hidden icons area in the Windows
+  system tray, then reopen the widget from the Start menu.
+- **Not signed in:** authenticate with the corresponding tool and select
+  **Refresh now**.
+- **Codex CLI not found:** verify that `codex --version` works in a new terminal.
+- **OpenCode Go subscription required:** confirm that the API key belongs to a
+  workspace with an active Go subscription.
+- **Data temporarily unavailable:** check your Internet connection. The widget
+  will retry automatically.
+
+## Provider notices
+
+Claude Usage Widget queries the private endpoint used by Claude Code; Anthropic
+may change or remove it without notice. Codex Usage Widget requires a Codex CLI
+version compatible with the `codex app-server` account methods. OpenCode Usage
+Widget uses the Go usage endpoint, which is not currently documented as a
+stable public contract.
 
 ## License
 
-Distributed under the terms of the [LICENSE.txt](LICENSE.txt) file.
+Distributed under [LICENSE.txt](LICENSE.txt).
