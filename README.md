@@ -1,3 +1,11 @@
+<div align="center">
+
+<img src="apps/claude-usage-widget/claude_widget/claude_icon.svg" alt="Claude" width="56" height="56">
+&nbsp;&nbsp;&nbsp;
+<img src="apps/codex-usage-widget/codex_widget/codex_icon.svg" alt="Codex" width="56" height="56">
+&nbsp;&nbsp;&nbsp;
+<img src="apps/opencode-usage-widget/opencode_widget/opencode_icon.svg" alt="OpenCode" width="56" height="56">
+
 # Windows Usage Widgets
 
 Independent Windows system tray widgets for monitoring **Claude Code**,
@@ -7,7 +15,11 @@ Each widget displays the percentage used directly in its tray icon. Open it to
 view every available usage window, the time remaining until each reset, and
 when the data was last updated.
 
-![Demo de los tres widgets](assets/widgets-overview.gif)
+<br>
+
+<img src="assets/widgets-overview.gif" alt="Demo of the three usage widgets">
+
+</div>
 
 ## Download and install
 
