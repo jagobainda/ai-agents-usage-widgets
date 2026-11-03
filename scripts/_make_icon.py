@@ -26,6 +26,10 @@ def _logo_factory(app: str):
         from opencode_widget.branding import opencode_logo
 
         return opencode_logo
+    if app == "kimi":
+        from kimi_widget.branding import kimi_logo
+
+        return kimi_logo
     raise ValueError(f"unknown app: {app}")
 
 
@@ -36,7 +40,7 @@ def main() -> int:
         app, output = sys.argv[2].lower(), sys.argv[3]
     else:
         print(
-            "usage: _make_icon.py [--app claude|codex|opencode] <out.ico>",
+            "usage: _make_icon.py [--app claude|codex|opencode|kimi] <out.ico>",
             file=sys.stderr,
         )
         return 2

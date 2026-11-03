@@ -5,11 +5,13 @@
 <img src="apps/codex-usage-widget/codex_widget/codex_icon.svg" alt="Codex" width="56" height="56">
 &nbsp;&nbsp;&nbsp;
 <img src="apps/opencode-usage-widget/opencode_widget/opencode_icon.svg" alt="OpenCode" width="56" height="56">
+&nbsp;&nbsp;&nbsp;
+<img src="apps/kimi-usage-widget/kimi_widget/kimi_icon.svg" alt="Kimi" width="56" height="56">
 
 # Windows Usage Widgets
 
 Independent Windows system tray widgets for monitoring **Claude Code**,
-**OpenAI Codex**, and **OpenCode Go** usage.
+**OpenAI Codex**, **OpenCode Go**, and **Kimi Code** usage.
 
 Each widget displays the percentage used directly in its tray icon. Open it to
 view every available usage window, the time remaining until each reset, and
@@ -17,7 +19,7 @@ when the data was last updated.
 
 <br>
 
-<img src="assets/widgets-overview.gif" alt="Demo of the three usage widgets">
+<img src="assets/widgets-overview.gif" alt="Demo of the usage widgets">
 
 </div>
 
@@ -28,6 +30,7 @@ when the data was last updated.
 | **Claude Usage Widget** | Claude Code usage windows | [Download version 1.0.5](https://cdn.jagoba.dev/downloads/usage-widgets/ClaudeUsageWidget-Setup-1.0.5.exe) |
 | **Codex Usage Widget** | Account limits exposed by Codex CLI | [Download version 1.0.5](https://cdn.jagoba.dev/downloads/usage-widgets/CodexUsageWidget-Setup-1.0.5.exe) |
 | **OpenCode Usage Widget** | OpenCode Go five-hour, weekly, and monthly windows | [Download version 1.0.5](https://cdn.jagoba.dev/downloads/usage-widgets/OpenCodeUsageWidget-Setup-1.0.5.exe) |
+| **Kimi Usage Widget** | Kimi Code five-hour, weekly, and monthly windows | [Download version 1.0.5](https://cdn.jagoba.dev/downloads/usage-widgets/KimiUsageWidget-Setup-1.0.5.exe) |
 
 To install a widget:
 
@@ -38,7 +41,7 @@ To install a widget:
 4. When setup finishes, a new icon will appear in the system tray.
 
 Each widget has its own process, installation directory, and startup setting.
-You can install and use all three at the same time.
+You can install and use all four at the same time.
 
 ## Requirements and account access
 
@@ -86,6 +89,19 @@ in read-only mode; it does not copy or modify it.
 > endpoint does not include your Zen credit balance or usage from external
 > providers configured in OpenCode.
 
+### Kimi Usage Widget
+
+You need [Kimi Code](https://www.kimi.com/code/docs/en/) installed and signed in
+with a membership that includes Kimi Code:
+
+```powershell
+kimi login
+```
+
+The widget reuses the existing Kimi Code OAuth session and displays the same
+account windows as the CLI's `/usage` command. The weekly window only appears
+for legacy plans that include it.
+
 ## Usage
 
 - The number in the tray icon shows the percentage used in the primary window.
@@ -106,7 +122,7 @@ each tool remain separate.
 
 To uninstall a widget, open **Windows Settings → Apps → Installed apps**, find
 its name, and select **Uninstall**. Removing a widget does not sign you out or
-delete credentials belonging to Claude Code, Codex, or OpenCode.
+delete credentials belonging to Claude Code, Codex, OpenCode, or Kimi Code.
 
 ## Troubleshooting
 
@@ -117,6 +133,8 @@ delete credentials belonging to Claude Code, Codex, or OpenCode.
 - **Codex CLI not found:** verify that `codex --version` works in a new terminal.
 - **OpenCode Go subscription required:** confirm that the API key belongs to a
   workspace with an active Go subscription.
+- **Kimi Code membership required:** confirm that your membership includes
+  Kimi Code and that `kimi login` completes successfully.
 - **Data temporarily unavailable:** check your Internet connection. The widget
   will retry automatically.
 
@@ -126,7 +144,8 @@ Claude Usage Widget queries the private endpoint used by Claude Code; Anthropic
 may change or remove it without notice. Codex Usage Widget requires a Codex CLI
 version compatible with the `codex app-server` account methods. OpenCode Usage
 Widget uses the Go usage endpoint, which is not currently documented as a
-stable public contract.
+stable public contract. Kimi Usage Widget uses the same usage endpoint and
+OAuth client as Kimi Code; Moonshot AI may change them without notice.
 
 ## License
 
