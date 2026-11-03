@@ -3,7 +3,7 @@
     Builds one or all Windows usage widgets and optionally their installers.
 
 .PARAMETER App
-    claude (default), codex, opencode, or all. The default preserves the original
+    claude (default), codex, opencode, kimi, or all. The default preserves the original
     repository command behaviour.
 
 .PARAMETER Sign
@@ -16,11 +16,12 @@
     .\scripts\build-release.ps1 -App claude -Version "1.1.0"
     .\scripts\build-release.ps1 -App codex -Version "1.1.0" -Installer
     .\scripts\build-release.ps1 -App opencode -Version "1.1.0" -Installer
+    .\scripts\build-release.ps1 -App kimi -Version "1.1.0" -Installer
     .\scripts\build-release.ps1 -App all -Version "1.1.0"
 #>
 
 param(
-    [ValidateSet("claude", "codex", "opencode", "all")]
+    [ValidateSet("claude", "codex", "opencode", "kimi", "all")]
     [string]$App = "claude",
     [switch]$Sign,
     [string]$CertThumbprint = "",
@@ -65,6 +66,13 @@ $Applications = @{
         Main = Join-Path $RepoRoot "apps\opencode-usage-widget\main.py"
         AppPath = Join-Path $RepoRoot "apps\opencode-usage-widget"
         Installer = Join-Path $RepoRoot "installer\OpenCodeUsageWidget.iss"
+    }
+    kimi = @{
+        Name = "KimiUsageWidget"
+        Display = "Kimi Usage Widget"
+        Main = Join-Path $RepoRoot "apps\kimi-usage-widget\main.py"
+        AppPath = Join-Path $RepoRoot "apps\kimi-usage-widget"
+        Installer = Join-Path $RepoRoot "installer\KimiUsageWidget.iss"
     }
 }
 
@@ -209,7 +217,7 @@ function Invoke-AppBuild {
     }
 }
 
-$Targets = if ($App -eq "all") { @("claude", "codex", "opencode") } else { @($App) }
+$Targets = if ($App -eq "all") { @("claude", "codex", "opencode", "kimi") } else { @($App) }
 foreach ($Target in $Targets) {
     Invoke-AppBuild -AppKey $Target
 }

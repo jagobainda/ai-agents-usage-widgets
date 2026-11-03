@@ -54,4 +54,5 @@ jobs:
             releases/ClaudeUsageWidget-ci.exe
             releases/CodexUsageWidget-ci.exe
             releases/OpenCodeUsageWidget-ci.exe
+            releases/KimiUsageWidget-ci.exe
           if-no-files-found: error

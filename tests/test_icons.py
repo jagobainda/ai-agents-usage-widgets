@@ -10,7 +10,7 @@ from widget_common.models import Usage, UsageLimit
 
 class TrayIconTests(unittest.TestCase):
     def test_usage_digits_use_only_the_provider_color_at_every_usage_level(self) -> None:
-        for color in ("#D97757", "#4CC9F0", "#808080"):
+        for color in ("#D97757", "#4CC9F0", "#808080", "#FFFFFF"):
             expected_rgb = tuple(bytes.fromhex(color[1:]))
             for utilization in (0.0, 0.5, 0.95, 1.0):
                 with self.subTest(color=color, utilization=utilization):
