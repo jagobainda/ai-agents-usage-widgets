@@ -19,6 +19,27 @@ if TYPE_CHECKING:
 
 _FETCH_DEADLINE_SECONDS = 30.0
 _RESULT_GRACE_SECONDS = 8.0
+_MAX_TRAY_TITLE = 127
+
+
+def _truncate_title(text: str) -> str:
+    if len(text) <= _MAX_TRAY_TITLE:
+        return text
+    return text[: _MAX_TRAY_TITLE - 1].rstrip() + "…"
+
+
+def _format_tray_title(header: str, summary: str, footer: str = "") -> str:
+    fixed = header if not footer else f"{header}\n{footer}"
+    if not summary:
+        return _truncate_title(fixed)
+    budget = _MAX_TRAY_TITLE - len(fixed) - 1
+    if budget <= 1:
+        return _truncate_title(fixed)
+    fitted = summary if len(summary) <= budget else summary[: budget - 1].rstrip() + "…"
+    parts = [header, fitted]
+    if footer:
+        parts.append(footer)
+    return "\n".join(parts)
 
 
 class AppState:
@@ -89,15 +110,17 @@ class AppState:
                 f"{limit.short_label}: {int(round(limit.utilization * 100))}%"
                 for limit in usage.limits
             )
-            lines = [self.config.tooltip_name]
-            if summary:
-                lines.append(summary)
+            footer = ""
             if usage.primary is not None:
-                lines.append(
+                footer = (
                     f"{usage.primary.short_label} reset: "
                     f"{format_until(usage.primary.resets_at)}"
                 )
-            self.icon.title = "\n".join(lines)
+            self.icon.title = _format_tray_title(
+                self.config.tooltip_name,
+                summary,
+                footer,
+            )
         self._result_ready.set()
         self._notify()
 
@@ -105,7 +128,9 @@ class AppState:
         self.last_error = message
         if self.icon is not None:
             self.icon.icon = error_icon()
-            self.icon.title = f"{self.config.tooltip_name} – error\n{message}"
+            self.icon.title = _truncate_title(
+                f"{self.config.tooltip_name} – error\n{message}"
+            )
         self._result_ready.set()
         self._notify()
 

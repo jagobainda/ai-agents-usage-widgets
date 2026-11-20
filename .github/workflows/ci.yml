@@ -55,4 +55,5 @@ jobs:
             releases/CodexUsageWidget-ci.exe
             releases/OpenCodeUsageWidget-ci.exe
             releases/KimiUsageWidget-ci.exe
+            releases/AntigravityUsageWidget-ci.exe
           if-no-files-found: error
