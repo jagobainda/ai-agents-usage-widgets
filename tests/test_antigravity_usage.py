@@ -10,7 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import test_support  # noqa: F401
-from antigravity_widget.branding import ANTIGRAVITY_GREEN, antigravity_logo
+from antigravity_widget.branding import antigravity_logo
 from antigravity_widget.cli import (
     AntigravityCLIClient,
     AntigravityCLIError,
@@ -307,12 +307,15 @@ class AntigravityProviderTests(unittest.TestCase):
 
 
 class AntigravityBrandingAndTooltipTests(unittest.TestCase):
-    def test_logo_renders_google_green_pixels(self) -> None:
+    def test_logo_renders_official_multicolor_gradient(self) -> None:
         image = antigravity_logo(64)
         self.assertEqual(image.size, (64, 64))
         visible = [pixel for pixel in image.get_flattened_data() if pixel[3] > 200]
         self.assertTrue(visible)
-        self.assertIn(ANTIGRAVITY_GREEN, {pixel[:3] for pixel in visible})
+        self.assertTrue(any(r > 180 and g < 120 and b < 120 for r, g, b, _ in visible))
+        self.assertTrue(any(r > 190 and g > 170 and b < 110 for r, g, b, _ in visible))
+        self.assertTrue(any(g > 150 and r < 110 and b < 140 for r, g, b, _ in visible))
+        self.assertTrue(any(b > 200 and r < 140 for r, g, b, _ in visible))
 
     def test_tray_tooltip_stays_within_windows_limit_for_multi_group_usage(self) -> None:
         class StaticProvider:

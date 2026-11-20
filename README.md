@@ -1,13 +1,13 @@
 <div align="center">
 
 <img src="apps/claude-usage-widget/claude_widget/claude_icon.svg" alt="Claude" width="56" height="56">
-&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="apps/codex-usage-widget/codex_widget/codex_icon.svg" alt="Codex" width="56" height="56">
-&nbsp;&nbsp;&nbsp;
-<img src="apps/opencode-usage-widget/opencode_widget/opencode_icon.svg" alt="OpenCode" width="56" height="56">
-&nbsp;&nbsp;&nbsp;
-<img src="apps/kimi-usage-widget/kimi_widget/kimi_icon.svg" alt="Kimi" width="56" height="56">
-&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="apps/opencode-usage-widget/opencode_widget/opencode_icon.svg" alt="OpenCode" width="45" height="56">
+&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="apps/kimi-usage-widget/kimi_widget/kimi_icon.svg" alt="Kimi" width="54" height="56">
+&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="apps/antigravity-usage-widget/antigravity_widget/antigravity_icon.svg" alt="Antigravity" width="56" height="56">
 
 # Windows Usage Widgets
