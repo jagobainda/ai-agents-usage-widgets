@@ -1,17 +1,20 @@
 <div align="center">
 
 <img src="apps/claude-usage-widget/claude_widget/claude_icon.svg" alt="Claude" width="56" height="56">
-&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;
 <img src="apps/codex-usage-widget/codex_widget/codex_icon.svg" alt="Codex" width="56" height="56">
-&nbsp;&nbsp;&nbsp;
-<img src="apps/opencode-usage-widget/opencode_widget/opencode_icon.svg" alt="OpenCode" width="56" height="56">
-&nbsp;&nbsp;&nbsp;
-<img src="apps/kimi-usage-widget/kimi_widget/kimi_icon.svg" alt="Kimi" width="56" height="56">
+&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="apps/opencode-usage-widget/opencode_widget/opencode_icon.svg" alt="OpenCode" width="45" height="56">
+&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="apps/kimi-usage-widget/kimi_widget/kimi_icon.svg" alt="Kimi" width="54" height="56">
+&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="apps/antigravity-usage-widget/antigravity_widget/antigravity_icon.svg" alt="Antigravity" width="56" height="56">
 
 # Windows Usage Widgets
 
 Independent Windows system tray widgets for monitoring **Claude Code**,
-**OpenAI Codex**, **OpenCode Go**, and **Kimi Code** usage.
+**OpenAI Codex**, **OpenCode Go**, **Kimi Code**, and **Google Antigravity**
+usage.
 
 Each widget displays the percentage used directly in its tray icon. Open it to
 view every available usage window, the time remaining until each reset, and
@@ -31,6 +34,7 @@ when the data was last updated.
 | **Codex Usage Widget** | Account limits exposed by Codex CLI | [Download version 1.0.5](https://cdn.jagoba.dev/downloads/usage-widgets/CodexUsageWidget-Setup-1.0.5.exe) |
 | **OpenCode Usage Widget** | OpenCode Go five-hour, weekly, and monthly windows | [Download version 1.0.5](https://cdn.jagoba.dev/downloads/usage-widgets/OpenCodeUsageWidget-Setup-1.0.5.exe) |
 | **Kimi Usage Widget** | Kimi Code five-hour, weekly, and monthly windows | [Download version 1.0.5](https://cdn.jagoba.dev/downloads/usage-widgets/KimiUsageWidget-Setup-1.0.5.exe) |
+| **Antigravity Usage Widget** | Google Antigravity model group quotas exposed by `agy` | [Download version 1.0.5](https://cdn.jagoba.dev/downloads/usage-widgets/AntigravityUsageWidget-Setup-1.0.5.exe) |
 
 To install a widget:
 
@@ -41,7 +45,7 @@ To install a widget:
 4. When setup finishes, a new icon will appear in the system tray.
 
 Each widget has its own process, installation directory, and startup setting.
-You can install and use all four at the same time.
+You can install and use all five at the same time.
 
 ## Requirements and account access
 
@@ -102,6 +106,19 @@ The widget reuses the existing Kimi Code OAuth session and displays the same
 account windows as the CLI's `/usage` command. The weekly window only appears
 for legacy plans that include it.
 
+### Antigravity Usage Widget
+
+You need [Google Antigravity CLI](https://antigravity.google/docs/getting-started)
+(`agy`) installed on Windows and signed in:
+
+```powershell
+agy
+```
+
+The widget queries `agy --print /usage --output-format json`, which reuses your
+existing Antigravity session without accessing credentials directly, creating
+conversations, or consuming quota.
+
 ## Usage
 
 - The number in the tray icon shows the percentage used in the primary window.
@@ -122,7 +139,8 @@ each tool remain separate.
 
 To uninstall a widget, open **Windows Settings → Apps → Installed apps**, find
 its name, and select **Uninstall**. Removing a widget does not sign you out or
-delete credentials belonging to Claude Code, Codex, OpenCode, or Kimi Code.
+delete credentials belonging to Claude Code, Codex, OpenCode, Kimi Code, or
+Google Antigravity.
 
 ## Troubleshooting
 
@@ -131,6 +149,7 @@ delete credentials belonging to Claude Code, Codex, OpenCode, or Kimi Code.
 - **Not signed in:** authenticate with the corresponding tool and select
   **Refresh now**.
 - **Codex CLI not found:** verify that `codex --version` works in a new terminal.
+- **Antigravity CLI not found:** verify that `agy --help` works in a new terminal.
 - **OpenCode Go subscription required:** confirm that the API key belongs to a
   workspace with an active Go subscription.
 - **Kimi Code membership required:** confirm that your membership includes
@@ -146,6 +165,8 @@ version compatible with the `codex app-server` account methods. OpenCode Usage
 Widget uses the Go usage endpoint, which is not currently documented as a
 stable public contract. Kimi Usage Widget uses the same usage endpoint and
 OAuth client as Kimi Code; Moonshot AI may change them without notice.
+Antigravity Usage Widget requires a Google Antigravity CLI (`agy`) version
+supporting `--print /usage --output-format json`.
 
 ## License
 
