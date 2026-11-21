@@ -1,14 +1,14 @@
 <div align="center">
 
-<img src="apps/claude-usage-widget/claude_widget/claude_icon.svg" alt="Claude" width="56" height="56">
+<img src="apps/claude-usage-widget/assets/claude_icon.svg" alt="Claude" width="56" height="56">
 &nbsp;&nbsp;&nbsp;&nbsp;
-<img src="apps/codex-usage-widget/codex_widget/codex_icon.svg" alt="Codex" width="56" height="56">
+<img src="apps/codex-usage-widget/assets/codex_icon.svg" alt="Codex" width="56" height="56">
 &nbsp;&nbsp;&nbsp;&nbsp;
-<img src="apps/opencode-usage-widget/opencode_widget/opencode_icon.svg" alt="OpenCode" width="45" height="56">
+<img src="apps/opencode-usage-widget/assets/opencode_icon.svg" alt="OpenCode" width="45" height="56">
 &nbsp;&nbsp;&nbsp;&nbsp;
-<img src="apps/kimi-usage-widget/kimi_widget/kimi_icon.svg" alt="Kimi" width="54" height="56">
+<img src="apps/kimi-usage-widget/assets/kimi_icon.svg" alt="Kimi" width="54" height="56">
 &nbsp;&nbsp;&nbsp;&nbsp;
-<img src="apps/antigravity-usage-widget/antigravity_widget/antigravity_icon.svg" alt="Antigravity" width="56" height="56">
+<img src="apps/antigravity-usage-widget/assets/antigravity_icon.svg" alt="Antigravity" width="56" height="56">
 
 # Windows Usage Widgets
 
@@ -30,11 +30,11 @@ when the data was last updated.
 
 | Widget | Information displayed | Installer |
 | --- | --- | --- |
-| **Claude Usage Widget** | Claude Code usage windows | [Download version 1.0.5](https://cdn.jagoba.dev/downloads/usage-widgets/ClaudeUsageWidget-Setup-1.0.5.exe) |
-| **Codex Usage Widget** | Account limits exposed by Codex CLI | [Download version 1.0.5](https://cdn.jagoba.dev/downloads/usage-widgets/CodexUsageWidget-Setup-1.0.5.exe) |
-| **OpenCode Usage Widget** | OpenCode Go five-hour, weekly, and monthly windows | [Download version 1.0.5](https://cdn.jagoba.dev/downloads/usage-widgets/OpenCodeUsageWidget-Setup-1.0.5.exe) |
-| **Kimi Usage Widget** | Kimi Code five-hour, weekly, and monthly windows | [Download version 1.0.5](https://cdn.jagoba.dev/downloads/usage-widgets/KimiUsageWidget-Setup-1.0.5.exe) |
-| **Antigravity Usage Widget** | Google Antigravity model group quotas exposed by `agy` | [Download version 1.0.5](https://cdn.jagoba.dev/downloads/usage-widgets/AntigravityUsageWidget-Setup-1.0.5.exe) |
+| **Claude Usage Widget** | Claude Code usage windows | [Download version 2.0.0](https://cdn.jagoba.dev/downloads/usage-widgets/ClaudeUsageWidget-Setup-2.0.0.exe) |
+| **Codex Usage Widget** | Account limits exposed by Codex CLI | [Download version 2.0.0](https://cdn.jagoba.dev/downloads/usage-widgets/CodexUsageWidget-Setup-2.0.0.exe) |
+| **OpenCode Usage Widget** | OpenCode Go five-hour, weekly, and monthly windows | [Download version 2.0.0](https://cdn.jagoba.dev/downloads/usage-widgets/OpenCodeUsageWidget-Setup-2.0.0.exe) |
+| **Kimi Usage Widget** | Kimi Code five-hour, weekly, and monthly windows | [Download version 2.0.0](https://cdn.jagoba.dev/downloads/usage-widgets/KimiUsageWidget-Setup-2.0.0.exe) |
+| **Antigravity Usage Widget** | Google Antigravity model group quotas exposed by `agy` | [Download version 2.0.0](https://cdn.jagoba.dev/downloads/usage-widgets/AntigravityUsageWidget-Setup-2.0.0.exe) |
 
 To install a widget:
 
@@ -45,7 +45,9 @@ To install a widget:
 4. When setup finishes, a new icon will appear in the system tray.
 
 Each widget has its own process, installation directory, and startup setting.
-You can install and use all five at the same time.
+You can install and use all five at the same time. On first launch, each widget
+automatically promotes its icon to the visible notification area of the Windows
+taskbar.
 
 ## Requirements and account access
 
@@ -73,7 +75,7 @@ codex --version
 ```
 
 The widget communicates with `codex app-server`, the official Codex protocol,
-and never accesses the credential file directly.
+and never accesses the credential file (`~/.codex/auth.json`) directly.
 
 ### OpenCode Usage Widget
 
@@ -85,7 +87,8 @@ subscription. In OpenCode, run:
 ```
 
 Select **OpenCode Go** and enter your API key. The widget reuses that credential
-in read-only mode; it does not copy or modify it.
+in read-only mode; it does not copy or modify it. The stored credential is
+named `opencode-go`.
 
 > [!NOTE]
 >
@@ -104,7 +107,9 @@ kimi login
 
 The widget reuses the existing Kimi Code OAuth session and displays the same
 account windows as the CLI's `/usage` command. The weekly window only appears
-for legacy plans that include it.
+for legacy plans that include it. The widget also reports five-hour and shared
+monthly usage, respects `KIMI_CODE_HOME`, and supports both the `.com` and
+`.ai` regions.
 
 ### Antigravity Usage Widget
 
@@ -117,7 +122,8 @@ agy
 
 The widget queries `agy --print /usage --output-format json`, which reuses your
 existing Antigravity session without accessing credentials directly, creating
-conversations, or consuming quota.
+conversations, or consuming quota. The widget displays all returned model groups
+and usage windows with their reset times.
 
 ## Usage
 
@@ -167,6 +173,27 @@ stable public contract. Kimi Usage Widget uses the same usage endpoint and
 OAuth client as Kimi Code; Moonshot AI may change them without notice.
 Antigravity Usage Widget requires a Google Antigravity CLI (`agy`) version
 supporting `--print /usage --output-format json`.
+
+## Build from source
+
+On Windows, install the Rust stable toolchain with the MSVC target, the Visual
+Studio C++ Build Tools and a Windows SDK. Install Inno Setup 6 to build
+installers. Run the following commands from the repository root:
+
+```powershell
+cargo build --workspace --locked
+cargo run -p claude-usage-widget
+.\scripts\build-release.ps1 -App all -Version "2.0.0" -Installer
+```
+
+Cargo builds the executables in `target\debug\`. The release script writes
+portable executables and installers to `releases\`. For one widget, replace
+`all` with `claude`, `codex`, `opencode`, `kimi` or `antigravity`. Omit
+`-Installer` for a portable release. Pass `-Sign -CertThumbprint` and, if needed,
+`-KeyInfoFile` to sign with Certum.
+
+The committed icons in `apps/*/assets/` were generated from the SVGs with
+`widget_common::icons::render_logo` at 16, 32, 48, 64, 128 and 256 px.
 
 ## License
 
