@@ -1,0 +1,19 @@
+{
+  "limits": [
+    {
+      "kind": "session",
+      "percent": 37,
+      "resets_at": "2026-09-21T18:30:00Z",
+      "severity": "normal",
+      "is_active": true
+    },
+    {
+      "kind": "weekly_scoped",
+      "percent": 81,
+      "resets_at": null,
+      "scope": {"model": {"display_name": "Opus"}},
+      "unexpected": "ignored"
+    }
+  ],
+  "unknown_top_level": {"future": true}
+}

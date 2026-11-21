@@ -1,9 +1,9 @@
-# Dependencias de Python
+# Workspace de Cargo
 
-/requirements.txt @jagobainda
+/Cargo.toml @jagobainda
+/Cargo.lock @jagobainda
 /apps/ @jagobainda
 /packages/ @jagobainda
-/tests/ @jagobainda
 
 # GitHub Actions
 
