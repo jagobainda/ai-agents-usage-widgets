@@ -77,7 +77,13 @@ pub fn render_logo(logo: &Logo, size: u32) -> RgbaImage {
         (canvas - view.height() * scale) / 2.0,
     );
     resvg::render(&tree, transform, &mut pixmap.as_mut());
-    for (out, pixel) in image.rgba.chunks_exact_mut(4).zip(pixmap.pixels()) {
+    for (out, pixel) in image
+        .rgba
+        .as_chunks_mut::<4>()
+        .0
+        .iter_mut()
+        .zip(pixmap.pixels())
+    {
         let color = pixel.demultiply();
         out.copy_from_slice(&[color.red(), color.green(), color.blue(), color.alpha()]);
     }
@@ -200,10 +206,12 @@ mod tests {
         }
     }
 
-    fn visible(image: &RgbaImage) -> Vec<&[u8]> {
+    fn visible(image: &RgbaImage) -> Vec<&[u8; 4]> {
         image
             .rgba
-            .chunks_exact(4)
+            .as_chunks::<4>()
+            .0
+            .iter()
             .filter(|pixel| pixel[3] > 0)
             .collect()
     }
@@ -301,7 +309,9 @@ mod tests {
         assert_eq!((image.width, image.height), (64, 64));
         let opaque: Vec<_> = image
             .rgba
-            .chunks_exact(4)
+            .as_chunks::<4>()
+            .0
+            .iter()
             .filter(|pixel| pixel[3] > 200)
             .collect();
         assert!(!opaque.is_empty());
