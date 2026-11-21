@@ -225,6 +225,14 @@ class AntigravityCLIClientTests(unittest.TestCase):
         client = AntigravityCLIClient(command=[sys.executable, "-c", script], timeout=5.0)
         self.assertEqual(client.fetch_usage_payload()["command"]["name"], "usage")
 
+    def test_disables_agy_auto_update_in_child_process(self) -> None:
+        script = (
+            "import json, os; print(json.dumps({'status': 'SUCCESS', "
+            "'value': os.environ.get('AGY_CLI_DISABLE_AUTO_UPDATE')}))"
+        )
+        client = AntigravityCLIClient(command=[sys.executable, "-c", script], timeout=5.0)
+        self.assertEqual(client.fetch_usage_payload()["value"], "true")
+
     def test_missing_executable_raises_not_found(self) -> None:
         with patch("antigravity_widget.cli.shutil.which", return_value=None), patch.dict(
             os.environ, {}, clear=True

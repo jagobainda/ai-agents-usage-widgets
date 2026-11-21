@@ -12,6 +12,11 @@ from pathlib import Path
 from typing import Any, Optional
 
 
+# agy spawns a detached self-updater every ~15 minutes; its child gets a new,
+# visible console window, so the widget's polling must never trigger it.
+_CHILD_ENV_OVERRIDES = {"AGY_CLI_DISABLE_AUTO_UPDATE": "true"}
+
+
 class AntigravityCLIError(RuntimeError):
     def __init__(self, message: str, detail: str = "") -> None:
         super().__init__(message)
@@ -131,6 +136,7 @@ class AntigravityCLIClient:
                     encoding="utf-8",
                     errors="replace",
                     creationflags=creation_flags,
+                    env={**os.environ, **_CHILD_ENV_OVERRIDES},
                 )
             except FileNotFoundError as exc:
                 raise AntigravityNotFoundError("Antigravity CLI was not found.") from exc
