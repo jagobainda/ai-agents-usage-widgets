@@ -9,8 +9,23 @@ on:
 
 jobs:
   build:
-    name: Test and build all widgets (unsigned)
+    name: ${{ matrix.package }}
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: widget-common
+          - package: antigravity-usage-widget
+            app: antigravity
+          - package: claude-usage-widget
+            app: claude
+          - package: codex-usage-widget
+            app: codex
+          - package: kimi-usage-widget
+            app: kimi
+          - package: opencode-usage-widget
+            app: opencode
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -26,26 +41,24 @@ jobs:
           restore-keys: cargo-${{ runner.os }}-${{ runner.arch }}-
 
       - name: Check formatting
-        run: cargo fmt --check
+        if: matrix.package == 'widget-common'
+        run: cargo fmt --all --check
 
       - name: Run Clippy
-        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+        run: cargo clippy -p ${{ matrix.package }} --all-targets --locked -- -D warnings
 
       - name: Run unit tests
-        run: cargo test --workspace --locked
+        run: cargo test -p ${{ matrix.package }} --locked
 
-      - name: Build executables
+      - name: Build executable
+        if: matrix.app
         shell: pwsh
-        run: .\scripts\build-release.ps1 -App all -Version "ci"
+        run: .\scripts\build-release.ps1 -App ${{ matrix.app }} -Version "ci"
 
       - name: Upload artifact
+        if: matrix.app
         uses: actions/upload-artifact@v7
         with:
-          name: UsageWidgets-unsigned
-          path: |
-            releases/ClaudeUsageWidget-ci.exe
-            releases/CodexUsageWidget-ci.exe
-            releases/OpenCodeUsageWidget-ci.exe
-            releases/KimiUsageWidget-ci.exe
-            releases/AntigravityUsageWidget-ci.exe
+          name: ${{ matrix.package }}-unsigned
+          path: releases/*UsageWidget-ci.exe
           if-no-files-found: error
