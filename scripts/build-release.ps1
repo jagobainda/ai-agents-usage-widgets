@@ -1,24 +1,8 @@
 <#
 .SYNOPSIS
     Builds one or all Windows usage widgets and optionally their installers.
-
-.PARAMETER App
-    claude (default), codex, opencode, kimi, antigravity, or all. The default preserves the original
-    repository command behaviour.
-
-.PARAMETER Sign
-    Sign each resulting executable with a Certum smart-card certificate.
-
-.PARAMETER Installer
-    Also create the corresponding per-user Inno Setup installer(s).
-
 .EXAMPLE
-    .\scripts\build-release.ps1 -App claude -Version "1.1.0"
-    .\scripts\build-release.ps1 -App codex -Version "1.1.0" -Installer
-    .\scripts\build-release.ps1 -App opencode -Version "1.1.0" -Installer
-    .\scripts\build-release.ps1 -App kimi -Version "1.1.0" -Installer
-    .\scripts\build-release.ps1 -App antigravity -Version "1.1.0" -Installer
-    .\scripts\build-release.ps1 -App all -Version "1.1.0"
+    .\scripts\build-release.ps1 -App all -Version "2.0.0" -Installer
 #>
 
 param(
@@ -27,106 +11,43 @@ param(
     [switch]$Sign,
     [string]$CertThumbprint = "",
     [string]$KeyInfoFile = "C:\Users\Jagoba\keyinfo.inf",
-    [string]$Version = "1.0.0",
+    [string]$Version = "2.0.0",
     [switch]$Installer
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+$RepoRoot = Split-Path $PSScriptRoot -Parent
+$ReleaseDir = Join-Path $RepoRoot "releases"
 $TimestampUrl = "http://time.certum.pl"
 $SigntoolExe = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe"
-$RepoRoot = Split-Path $PSScriptRoot -Parent
-$Requirements = Join-Path $RepoRoot "requirements.txt"
-$CommonPath = Join-Path $RepoRoot "packages\widget-common"
-$BuildDir = Join-Path $RepoRoot "build"
-$DistDir = Join-Path $RepoRoot "dist"
-$ReleaseDir = Join-Path $RepoRoot "releases"
-$VenvDir = Join-Path $RepoRoot ".venv"
-$Python = Join-Path $VenvDir "Scripts\python.exe"
-$MakeIcon = Join-Path $PSScriptRoot "_make_icon.py"
 
-$Applications = @{
-    claude = @{
-        Name = "ClaudeUsageWidget"
-        Display = "Claude Usage Widget"
-        Main = Join-Path $RepoRoot "apps\claude-usage-widget\main.py"
-        AppPath = Join-Path $RepoRoot "apps\claude-usage-widget"
-        Installer = Join-Path $RepoRoot "installer\ClaudeUsageWidget.iss"
-    }
-    codex = @{
-        Name = "CodexUsageWidget"
-        Display = "Codex Usage Widget"
-        Main = Join-Path $RepoRoot "apps\codex-usage-widget\main.py"
-        AppPath = Join-Path $RepoRoot "apps\codex-usage-widget"
-        Installer = Join-Path $RepoRoot "installer\CodexUsageWidget.iss"
-    }
-    opencode = @{
-        Name = "OpenCodeUsageWidget"
-        Display = "OpenCode Usage Widget"
-        Main = Join-Path $RepoRoot "apps\opencode-usage-widget\main.py"
-        AppPath = Join-Path $RepoRoot "apps\opencode-usage-widget"
-        Installer = Join-Path $RepoRoot "installer\OpenCodeUsageWidget.iss"
-    }
-    kimi = @{
-        Name = "KimiUsageWidget"
-        Display = "Kimi Usage Widget"
-        Main = Join-Path $RepoRoot "apps\kimi-usage-widget\main.py"
-        AppPath = Join-Path $RepoRoot "apps\kimi-usage-widget"
-        Installer = Join-Path $RepoRoot "installer\KimiUsageWidget.iss"
-    }
-    antigravity = @{
-        Name = "AntigravityUsageWidget"
-        Display = "Antigravity Usage Widget"
-        Main = Join-Path $RepoRoot "apps\antigravity-usage-widget\main.py"
-        AppPath = Join-Path $RepoRoot "apps\antigravity-usage-widget"
-        Installer = Join-Path $RepoRoot "installer\AntigravityUsageWidget.iss"
+if ($Version -ne "ci" -or $Installer) {
+    if ($Version -notmatch '^[0-9]{1,5}(\.[0-9]{1,5}){1,3}\z' -or
+        ($Version.Split('.') | Where-Object { [int]$_ -gt 65535 })) {
+        throw "Use a numeric version such as 2.0.0. The label 'ci' is available for portable builds."
     }
 }
-
-$IsccCandidates = @(
-    "C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
-    "C:\Program Files\Inno Setup 6\ISCC.exe",
-    (Join-Path $env:LOCALAPPDATA "Programs\Inno Setup 6\ISCC.exe")
-)
-$IsccExe = $IsccCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
 
 if ($Sign) {
-    if (-not $CertThumbprint) {
-        Write-Error "-CertThumbprint is required when using -Sign."
-        exit 1
+    if (-not $CertThumbprint) { throw "-CertThumbprint is required when using -Sign." }
+    if (-not (Test-Path -LiteralPath $SigntoolExe)) { throw "signtool.exe not found at: $SigntoolExe" }
+    if (-not (Test-Path -LiteralPath $KeyInfoFile)) { throw "keyinfo.inf not found at: $KeyInfoFile" }
+    $KeyInfoFile = (Resolve-Path -LiteralPath $KeyInfoFile).Path
+}
+
+if ($Installer) {
+    $IsccCandidates = @(
+        "C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
+        "C:\Program Files\Inno Setup 6\ISCC.exe",
+        (Join-Path $env:LOCALAPPDATA "Programs\Inno Setup 6\ISCC.exe")
+    )
+    $IsccExe = $IsccCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+    if (-not $IsccExe) {
+        throw "Inno Setup compiler not found. Install it with: winget install JRSoftware.InnoSetup"
     }
-    if (-not (Test-Path $SigntoolExe)) {
-        Write-Error "signtool.exe not found at: $SigntoolExe"
-        exit 1
-    }
-    if (-not (Test-Path $KeyInfoFile)) {
-        Write-Error "keyinfo.inf not found at: $KeyInfoFile"
-        exit 1
-    }
 }
-
-if ($Installer -and -not $IsccExe) {
-    Write-Error "Inno Setup compiler not found. Install it with: winget install JRSoftware.InnoSetup"
-    exit 1
-}
-
-if ($Installer -and $Version -notmatch '^\d+(\.\d+){1,3}$') {
-    Write-Error "Inno Setup requires a numeric version such as 1.2.0 when -Installer is used."
-    exit 1
-}
-
-if (-not (Test-Path $Python)) {
-    Write-Host "Creating build environment at $VenvDir..." -ForegroundColor Yellow
-    python -m venv $VenvDir
-    if ($LASTEXITCODE -ne 0) { throw "venv creation failed" }
-}
-
-Write-Host "Installing build dependencies..." -ForegroundColor Yellow
-& $Python -m pip install -r $Requirements pyinstaller --quiet
-if ($LASTEXITCODE -ne 0) { throw "dependency installation failed" }
-
-New-Item -ItemType Directory -Force -Path $BuildDir, $DistDir, $ReleaseDir | Out-Null
 
 function Invoke-SignFile {
     param([string]$Path, [string]$Description)
@@ -136,96 +57,61 @@ function Invoke-SignFile {
     if ($LASTEXITCODE -ne 0) { throw "signature verification failed for $Path" }
 }
 
-function Invoke-AppBuild {
-    param([string]$AppKey)
-
-    $Definition = $Applications[$AppKey]
-    $Name = $Definition.Name
-    $Display = $Definition.Display
-    $IconDir = Join-Path $BuildDir "icons"
-    $IconFile = Join-Path $IconDir "$Name.ico"
-    $WorkPath = Join-Path $BuildDir "pyinstaller\$Name"
-    $SpecPath = Join-Path $BuildDir "specs"
-    $ExePath = Join-Path $DistDir "$Name.exe"
-
-    Write-Host ""
-    Write-Host "============================================================" -ForegroundColor Cyan
-    Write-Host "  $Display - release $Version" -ForegroundColor Cyan
-    Write-Host "============================================================" -ForegroundColor Cyan
-
-    foreach ($RequiredPath in @($Definition.Main, $Definition.Installer, $CommonPath)) {
-        if (-not (Test-Path $RequiredPath)) { throw "Required path not found: $RequiredPath" }
+$Targets = if ($App -eq "all") { @("claude", "codex", "opencode", "kimi", "antigravity") } else { @($App) }
+Push-Location -LiteralPath $RepoRoot
+try {
+    $MetadataJson = cargo metadata --format-version 1 --no-deps --locked
+    if ($LASTEXITCODE -ne 0) { throw "cargo metadata failed." }
+    $Metadata = $MetadataJson | ConvertFrom-Json
+    $Packages = foreach ($Target in $Targets) {
+        $Package = $Metadata.packages | Where-Object name -eq "$Target-usage-widget"
+        if (-not $Package) { throw "Cargo package not found for $Target." }
+        $Package
+    }
+    $WorkspaceVersion = $Metadata.packages | Where-Object name -eq "widget-common" | Select-Object -ExpandProperty version
+    if ($Version -ne "ci" -and $Version -cne $WorkspaceVersion) {
+        Write-Warning "Requested release version '$Version' differs from the Cargo workspace version '$WorkspaceVersion'. The executables keep the workspace version."
     }
 
-    New-Item -ItemType Directory -Force -Path $IconDir, $SpecPath | Out-Null
-    Remove-Item -LiteralPath $IconFile -Force -ErrorAction SilentlyContinue
-    & $Python $MakeIcon --app $AppKey $IconFile
-    if ($LASTEXITCODE -ne 0) { throw "icon generation failed for $AppKey" }
-
-    Remove-Item -LiteralPath $WorkPath -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item -LiteralPath $ExePath -Force -ErrorAction SilentlyContinue
-    Remove-Item -LiteralPath (Join-Path $SpecPath "$Name.spec") -Force -ErrorAction SilentlyContinue
-
-    $PyInstallerArgs = @(
-        "-m", "PyInstaller",
-        "--clean",
-        "--onefile",
-        "--noconsole",
-        "--name", $Name,
-        "--icon", $IconFile,
-        "--distpath", $DistDir,
-        "--workpath", $WorkPath,
-        "--specpath", $SpecPath,
-        "--paths", $CommonPath,
-        "--paths", $Definition.AppPath,
-        "--hidden-import", "pystray._win32"
-    )
-    if ($AppKey -eq "claude") {
-        $PyInstallerArgs += @(
-            "--hidden-import", "truststore",
-            "--collect-submodules", "truststore"
-        )
+    if ($App -eq "all") {
+        cargo build --release --locked --workspace
+    } else {
+        cargo build --release --locked -p "$App-usage-widget"
     }
-    if ($AppKey -eq "codex") {
-        $CodexIcon = Join-Path $Definition.AppPath "codex_widget\codex_icon.svg"
-        $PyInstallerArgs += @(
-            "--add-data", "${CodexIcon};codex_widget"
-        )
-    }
-    if ($AppKey -eq "opencode") {
-        $OpenCodeIcon = Join-Path $Definition.AppPath "opencode_widget\opencode_logo.svg"
-        $PyInstallerArgs += @(
-            "--add-data", "${OpenCodeIcon};opencode_widget"
-        )
-    }
-    $PyInstallerArgs += $Definition.Main
-    & $Python @PyInstallerArgs
-    if ($LASTEXITCODE -ne 0) { throw "PyInstaller failed for $AppKey" }
-    if (-not (Test-Path $ExePath)) { throw "Expected executable not found: $ExePath" }
+    if ($LASTEXITCODE -ne 0) { throw "Cargo release build failed." }
 
+    New-Item -ItemType Directory -Force -Path $ReleaseDir | Out-Null
     if ($Sign) {
         certutil -repairstore -user MY $CertThumbprint $KeyInfoFile
         if ($LASTEXITCODE -ne 0) { throw "certutil -repairstore failed" }
-        Invoke-SignFile -Path $ExePath -Description $Display
     }
 
-    $ReleaseExe = Join-Path $ReleaseDir "$Name-$Version.exe"
-    Copy-Item -LiteralPath $ExePath -Destination $ReleaseExe -Force
-    Write-Host "Portable build: $ReleaseExe" -ForegroundColor Green
-
-    if ($Installer) {
-        & $IsccExe "/DAppVersion=$Version" "/DRepoRoot=$RepoRoot" $Definition.Installer
-        if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed for $AppKey" }
-        $SetupExe = Join-Path $ReleaseDir "$Name-Setup-$Version.exe"
-        if (-not (Test-Path $SetupExe)) { throw "Expected installer not found: $SetupExe" }
+    foreach ($Package in $Packages) {
+        $Binary = $Package.targets | Where-Object { $_.kind -contains "bin" }
+        $Name = $Binary.name
+        $ExePath = Join-Path $Metadata.target_directory "release\$Name.exe"
+        $ReleaseExe = Join-Path $ReleaseDir "$Name-$Version.exe"
+        if (-not (Test-Path -LiteralPath $ExePath)) { throw "Expected executable not found: $ExePath" }
+        Copy-Item -LiteralPath $ExePath -Destination $ReleaseExe -Force
+        $InstallerSource = $ExePath
         if ($Sign) {
-            Invoke-SignFile -Path $SetupExe -Description "$Display Setup"
+            Invoke-SignFile -Path $ReleaseExe -Description $Package.description
+            $InstallerSource = $ReleaseExe
         }
-        Write-Host "Installer: $SetupExe" -ForegroundColor Green
-    }
-}
+        Write-Host "Portable build: $ReleaseExe" -ForegroundColor Green
 
-$Targets = if ($App -eq "all") { @("claude", "codex", "opencode", "kimi", "antigravity") } else { @($App) }
-foreach ($Target in $Targets) {
-    Invoke-AppBuild -AppKey $Target
+        if ($Installer) {
+            $InstallerPath = Join-Path $RepoRoot "installer\$Name.iss"
+            & $IsccExe "/DAppVersion=$Version" "/DRepoRoot=$RepoRoot" "/DAppSource=$InstallerSource" $InstallerPath
+            if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed for $Name" }
+            $SetupExe = Join-Path $ReleaseDir "$Name-Setup-$Version.exe"
+            if (-not (Test-Path -LiteralPath $SetupExe)) { throw "Expected installer not found: $SetupExe" }
+            if ($Sign) {
+                Invoke-SignFile -Path $SetupExe -Description "$($Package.description) Setup"
+            }
+            Write-Host "Installer: $SetupExe" -ForegroundColor Green
+        }
+    }
+} finally {
+    Pop-Location
 }
