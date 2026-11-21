@@ -1,13 +1,12 @@
 version: 2
 updates:
-  # Python dependencies (requirements.txt)
-  - package-ecosystem: "pip"
+  - package-ecosystem: "cargo"
     directory: "/"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
     groups:
-      python-dependencies:
+      cargo-dependencies:
         patterns:
           - "*"
 

@@ -8,41 +8,33 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
-    name: Tests (Python ${{ matrix.python-version }})
+  build:
+    name: Test and build all widgets (unsigned)
     runs-on: windows-latest
-    strategy:
-      matrix:
-        python-version: ["3.10", "3.12"]
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Set up Python
-        uses: actions/setup-python@v7
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+          key: cargo-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: cargo-${{ runner.os }}-${{ runner.arch }}-
 
-      - name: Install dependencies
-        run: python -m pip install -r requirements.txt
+      - name: Check formatting
+        run: cargo fmt --check
+
+      - name: Run Clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
 
       - name: Run unit tests
-        run: python -m unittest discover -s tests -v
+        run: cargo test --workspace --locked
 
-  build:
-    name: Build all widgets (unsigned)
-    needs: test
-    runs-on: windows-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Set up Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: "3.12"
-
-      - name: Build executable
+      - name: Build executables
         shell: pwsh
         run: .\scripts\build-release.ps1 -App all -Version "ci"
 
