@@ -1,7 +1,6 @@
 pub const BG: &str = "#1b1c20";
 pub const TITLEBAR: &str = "#131418";
 pub const CARD: &str = "#24262c";
-pub const BORDER: &str = "#34363d";
 
 pub const TEXT: &str = "#e9eaee";
 pub const TEXT_MUTED: &str = "#9aa0a8";

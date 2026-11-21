@@ -128,7 +128,7 @@ impl eframe::App for Popup {
         self.fit_window(&ctx, size.ceil());
 
         let window = ui.max_rect();
-        ui.painter().rect_filled(window, 0, color(theme::BORDER));
+        ui.painter().rect_filled(window, 0, color(config.accent));
         let body = window.shrink(1.0);
         ui.painter().rect_filled(body, 0, color(theme::BG));
         let bar = Rect::from_min_size(body.min, vec2(body.width(), TITLEBAR_HEIGHT));
