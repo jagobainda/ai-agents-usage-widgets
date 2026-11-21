@@ -36,3 +36,4 @@ Thumbs.db
 
 # Release artifacts
 releases/
+.docs/
