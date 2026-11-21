@@ -1,0 +1,25 @@
+[package]
+build = "../../scripts/widget-resources.rs"
+name = "claude-usage-widget"
+description = "Claude Usage Widget"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "ClaudeUsageWidget"
+path = "src/main.rs"
+
+[dependencies]
+widget-common.workspace = true
+chrono.workspace = true
+serde_json.workspace = true
+ureq.workspace = true
+windows-sys.workspace = true
+
+[build-dependencies]
+winresource.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
