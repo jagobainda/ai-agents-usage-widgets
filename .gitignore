@@ -1,21 +1,5 @@
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-*.so
-*.egg
-*.egg-info/
-dist/
-build/
-.eggs/
-
-# Virtual environments
-venv/
-.venv/
-env/
-.env/
-ENV/
+# Rust
+target/
 
 # Environment variables
 .env
@@ -31,9 +15,9 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# PyInstaller
-*.spec
-
 # Release artifacts
 releases/
+build/
+dist/
+__pycache__/
 .docs/
