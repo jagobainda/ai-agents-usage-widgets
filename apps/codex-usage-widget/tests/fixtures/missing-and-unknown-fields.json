@@ -1,0 +1,10 @@
+{
+  "result": {
+    "rateLimits": {
+      "newField": [1, 2, 3],
+      "primary": {"usedPercent": "not a number", "future": true},
+      "secondary": null
+    },
+    "anotherFutureField": true
+  }
+}

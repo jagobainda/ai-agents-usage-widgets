@@ -1,0 +1,7 @@
+{
+  "rateLimits": {
+    "limitId": "codex",
+    "primary": {"usedPercent": 10, "windowDurationMins": 300},
+    "burst": {"usedPercent": 20, "windowDurationMins": 30}
+  }
+}

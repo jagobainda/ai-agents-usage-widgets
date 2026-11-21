@@ -1,0 +1,18 @@
+{
+  "rateLimits": {
+    "limitId": "codex",
+    "primary": {"usedPercent": 1, "windowDurationMins": 300}
+  },
+  "rateLimitsByLimitId": {
+    "codex": {
+      "limitId": "codex",
+      "primary": {"usedPercent": 31, "windowDurationMins": 300},
+      "secondary": {"usedPercent": 42, "windowDurationMins": 10080}
+    },
+    "codex_other": {
+      "limitId": "codex_other",
+      "limitName": "Fast models",
+      "primary": {"usedPercent": 17, "windowDurationMins": 60}
+    }
+  }
+}
