@@ -1,6 +1,6 @@
 use chrono::Utc;
 use serde_json::Value;
-use widget_common::utils::{parse_iso_datetime, round_percent};
+use widget_common::utils::parse_iso_datetime;
 use widget_common::{Usage, UsageLimit};
 
 use crate::auth::{OAuthToken, refresh_token_with};
@@ -45,24 +45,11 @@ pub fn parse_usage_response(payload: &Value) -> Result<Usage, KimiError> {
             "Kimi Code returned no usable usage windows.",
         ));
     }
-    let mut details = Vec::new();
-    let month_ratio = container
-        .and_then(|container| container.get("limit_month_code"))
-        .and_then(Value::as_object)
-        .and_then(|month_code| ratio(month_code.get("used_ratio")));
-    if let Some(ratio) = month_ratio
-        && limits
-            .iter()
-            .any(|item| item.key == "kimi:limit_month_total")
-    {
-        let percent = round_percent(ratio);
-        details.push(format!("Monthly · Kimi Code {percent}% used"));
-    }
     Ok(Usage {
         limits,
         fetched_at: Utc::now(),
         primary_key: Some("kimi:limit_5h".to_string()),
-        details,
+        details: Vec::new(),
     })
 }
 
@@ -166,7 +153,8 @@ mod tests {
         assert_eq!(usage.primary().unwrap().utilization, 0.125);
         assert_eq!(usage.limits[1].utilization, 1.0);
         assert_eq!(usage.limits[1].severity, "reached");
-        assert_eq!(usage.details, ["Monthly · Kimi Code 10% used"]);
+        assert_eq!(usage.limits[2].utilization, 0.25);
+        assert!(usage.details.is_empty());
         assert_eq!(
             usage.limits[0].resets_at.unwrap().to_rfc3339(),
             "2026-09-22T16:00:00+00:00"
